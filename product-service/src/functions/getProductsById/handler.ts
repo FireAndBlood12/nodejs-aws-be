@@ -19,7 +19,7 @@ export const getProductsById: APIGatewayProxyHandler = async (event) => {
     if (!product) {
       return formatJSONResponse({
         message: `Can't find product with id: ${id}`
-      }, 400);
+      }, 404);
     }
   
     return formatJSONResponse(product);
