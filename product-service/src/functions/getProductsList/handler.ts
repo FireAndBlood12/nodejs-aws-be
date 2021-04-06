@@ -12,8 +12,11 @@ export const getProductsList: APIGatewayProxyHandler = async () => {
   } catch (e) {
     console.error(e.message);
 
-    return formatJSONResponse({
-      message: `Something went wrong during search...`
-    }, 500);
+    return formatJSONResponse(
+      {
+        message: `Something went wrong during search...`
+      },
+      500
+    );
   }
-}
+};
