@@ -1,3 +1,13 @@
+> **.env example**:
+
+```
+    PG_HOST=your host
+    PG_PORT=5432
+    PG_DATABASE=your db
+    PG_USERNAME=postgres
+    PG_PASSWORD=your password
+```
+
 # Serverless - AWS Node.js Typescript
 
 This project has been generated using the `aws-nodejs-typescript` template from the [Serverless framework](https://www.serverless.com/).
