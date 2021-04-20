@@ -92,4 +92,4 @@ INSERT INTO public.products(
         '16-inch Retina display with True Tone'
     );
 
-insert into stocks (product_id, count) select id, trunc(10 + random()*25) from products;
+insert into stocks (product_id, count) select id, trunc(10 + random() * 25) from products;

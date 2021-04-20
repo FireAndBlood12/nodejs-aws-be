@@ -3,6 +3,8 @@ import 'source-map-support/register';
 import type { APIGatewayProxyHandler } from 'aws-lambda';
 import { formatJSONResponse } from '@libs/apiGateway';
 import productService from '@services/productService';
+import { middyfy } from '@libs/lambda';
+import { logger } from '@utils/logger';
 
 export const getProductsList: APIGatewayProxyHandler = async () => {
   try {
@@ -10,7 +12,7 @@ export const getProductsList: APIGatewayProxyHandler = async () => {
 
     return formatJSONResponse(products);
   } catch (e) {
-    console.error(e.message);
+    logger.error({ message: e?.message, error: e });
 
     return formatJSONResponse(
       {
@@ -20,3 +22,5 @@ export const getProductsList: APIGatewayProxyHandler = async () => {
     );
   }
 };
+
+export const main = middyfy(getProductsList);
