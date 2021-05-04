@@ -2,7 +2,11 @@ import 'source-map-support/register';
 
 import type { APIGatewayProxyHandler } from 'aws-lambda';
 import { formatJSONResponse } from '@libs/apiGateway';
+import { middyfy } from '@libs/lambda';
 import ProductService from '@services/productService';
+import { logger } from '@utils/logger';
+
+const UUIDRegExp = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export const getProductsById: APIGatewayProxyHandler = async (event) => {
   const id = event.pathParameters?.id;
@@ -11,6 +15,15 @@ export const getProductsById: APIGatewayProxyHandler = async (event) => {
     return formatJSONResponse(
       {
         message: 'Error: Mandatory path parameter id is missed'
+      },
+      404
+    );
+  }
+
+  if (!UUIDRegExp.test(id)) {
+    return formatJSONResponse(
+      {
+        message: `Error: Incorrect id fromat: ${id}`
       },
       404
     );
@@ -30,7 +43,7 @@ export const getProductsById: APIGatewayProxyHandler = async (event) => {
 
     return formatJSONResponse(product);
   } catch (e) {
-    console.error(e.message);
+    logger.error({ message: e?.message, error: e });
 
     return formatJSONResponse(
       {
@@ -40,3 +53,5 @@ export const getProductsById: APIGatewayProxyHandler = async (event) => {
     );
   }
 };
+
+export const main = middyfy(getProductsById);
