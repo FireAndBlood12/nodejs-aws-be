@@ -6,7 +6,7 @@ import { middyfy } from '@libs/lambda';
 import defaultFileService from '@services/FileService';
 import { logger } from '@utils/logger';
 
-const importProductsFile: APIGatewayProxyHandler = async (event) => {
+export const importProductsFile: APIGatewayProxyHandler = async (event) => {
   try {
     const fileName = event.queryStringParameters.name;
     if (fileName?.length < 4) {

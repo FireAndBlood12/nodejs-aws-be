@@ -17,7 +17,5 @@ export const middyfyErrLogger = (handler) => {
 };
 
 export const middyfy = (handler) => {
-  return middyfyErrLogger(handler)
-    .use(middyJsonBodyParser())
-    .use(cors());
+  return middyfyErrLogger(handler).use(middyJsonBodyParser()).use(cors());
 };

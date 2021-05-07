@@ -9,7 +9,7 @@ export type ValidatedEventAPIGatewayProxyEvent<S> = Handler<
   APIGatewayProxyResult
 >;
 
-export type S3EventHandler = Handler<S3Event, { statusCode: number }>
+export type S3EventHandler = Handler<S3Event, { statusCode: number }>;
 
 export const formatJSONResponse = (response, statusCode = 200) => {
   return {

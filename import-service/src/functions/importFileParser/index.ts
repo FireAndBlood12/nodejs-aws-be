@@ -12,8 +12,8 @@ export default {
             prefix: 'uploaded/'
           }
         ],
-        existing: true,
-      },
-    },
-  ],
+        existing: true
+      }
+    }
+  ]
 };
