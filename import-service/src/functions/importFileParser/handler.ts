@@ -1,16 +1,17 @@
 import 'source-map-support/register';
 
-import type { ValidatedEventAPIGatewayProxyEvent } from '@libs/apiGateway';
-import { formatJSONResponse } from '@libs/apiGateway';
-import { middyfy } from '@libs/lambda';
+import type { S3EventHandler } from '@libs/apiGateway';
+import { middyfyErrLogger } from '@libs/lambda';
+import defaultFileService from '@services/FileService';
 
-import schema from './schema';
+const importFileParser: S3EventHandler = async (event) => {
+  for (const record of event.Records) {
+    await defaultFileService.parseFile(record.s3.object.key)
+  }
 
-const hello: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event) => {
-  return formatJSONResponse({
-    message: `Hello ${event.body.name}, welcome to the exciting Serverless world!`,
-    event
-  });
+  return {
+    statusCode: 200,
+  };
 };
 
-export const main = middyfy(hello);
+export const main = middyfyErrLogger(importFileParser);

@@ -1,6 +1,7 @@
 import type { AWS } from '@serverless/typescript';
 
-import hello from '@functions/importProductsFile';
+import importProductsFile from '@functions/importProductsFile';
+import importFileParser from '@functions/importFileParser';
 
 const serverlessConfiguration: AWS = {
   service: 'import-service',
@@ -10,7 +11,9 @@ const serverlessConfiguration: AWS = {
       webpackConfig: './webpack.config.js',
       includeModules: true,
     },
+    stage: 'dev',
   },
+  useDotenv: true,
   plugins: ['serverless-webpack'],
   provider: {
     name: 'aws',
@@ -25,21 +28,28 @@ const serverlessConfiguration: AWS = {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
     },
     lambdaHashingVersion: '20201221',
-    iamRoleStatements: [
-      {
-        Effect: 'Allow',
-        Action: ['s3:ListBucket'],
-        Resource: ['arn:aws:s3:::aws-import-service'],
+    iam: {
+      role: {
+        statements: [
+          {
+            Effect: 'Allow',
+            Action: ['s3:ListBucket'],
+            Resource: ['arn:aws:s3:::aws-import-service'],
+          },
+          {
+            Effect: 'Allow',
+            Action: ['s3:*'],
+            Resource: ['arn:aws:s3:::aws-import-service/*'],
+          },
+        ],
       },
-      {
-        Effect: 'Allow',
-        Action: ['s3:*'],
-        Resource: ['arn:aws:s3:::aws-import-service/*'],
-      },
-    ],
+    },
   },
   // import the function via paths
-  functions: { hello },
+  functions: {
+    importFileParser,
+    importProductsFile,
+  },
 };
 
 module.exports = serverlessConfiguration;

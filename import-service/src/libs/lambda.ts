@@ -5,15 +5,19 @@ import inputOutputLogger from '@middy/input-output-logger';
 import httpErrorHandler from '@middy/http-error-handler';
 import { logger } from '@utils/logger';
 
-export const middyfy = (handler) => {
+export const middyfyErrLogger = (handler) => {
   return middy(handler)
-    .use(middyJsonBodyParser())
-    .use(cors())
     .use(inputOutputLogger({ logger: logger.info.bind(logger) }))
     .use(
       httpErrorHandler({
         logger: logger.error.bind(logger),
         fallbackMessage: 'Error during execution'
       })
-    )
+    );
+};
+
+export const middyfy = (handler) => {
+  return middyfyErrLogger(handler)
+    .use(middyJsonBodyParser())
+    .use(cors());
 };
