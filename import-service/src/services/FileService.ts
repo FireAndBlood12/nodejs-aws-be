@@ -1,4 +1,4 @@
-import { S3 } from 'aws-sdk';
+import { S3, SQS } from 'aws-sdk';
 import { logger } from '@utils/logger';
 import * as csv from 'csv-parser';
 
@@ -8,7 +8,9 @@ export class FileService {
     private bucketRegion: string,
     private uploadFolder: string,
     private parsedFolder: string,
-    private signedUrlExpiration: number
+    private signedUrlExpiration: number,
+    private sqs: SQS,
+    private sqsURL: string,
   ) {}
 
   async createSignedURL(fileName: string, contentType: string = 'text/csv'): Promise<string> {
@@ -37,7 +39,17 @@ export class FileService {
     s3Stream
       .pipe(csv())
       .on('open', () => console.debug(`Parsing file ${s3ObjectKey}`))
-      .on('data', (data) => console.debug('csv-parser data:', data))
+      .on('data', async (data) => {
+        try {
+          await this.sqs.sendMessage({
+            MessageBody: JSON.stringify(data),
+            QueueUrl: this.sqsURL,
+          });
+          logger.info('The parsed product was successfully sended to queue', { product: data });
+        } catch(error) {
+          logger.error('An error occured during sending product to queue', { product: data, error });
+        }
+      })
       .on('error', async (error) => {
         console.log('Error:', error);
         await s3
@@ -81,7 +93,9 @@ const defaultFileService = new FileService(
   process.env.BUCKET_REGION,
   process.env.UPLOAD_FOLDER,
   process.env.PARSED_FOLDER,
-  parseInt(process.env.SIGNED_URL_EXPIRATION)
+  parseInt(process.env.SIGNED_URL_EXPIRATION),
+  new SQS(),
+  process.env.CATALOG_ITEMS_QUEUE_URL,
 );
 
 export default defaultFileService;
