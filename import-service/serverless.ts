@@ -26,7 +26,7 @@ const serverlessConfiguration: AWS = {
     },
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
-      CATALOG_ITEMS_QUEUE_URL: '${cf:product-service-dev.catalogItemsQueueURL}'
+      CATALOG_ITEMS_QUEUE_URL: '${cf:product-service-${self:provider.stage}.catalogItemsQueueURL}',
     },
     lambdaHashingVersion: '20201221',
     iam: {
@@ -45,7 +45,7 @@ const serverlessConfiguration: AWS = {
           {
             Effect: 'Allow',
             Action: ['sqs:*'],
-            Resource: ['${cf:product-service-dev.catalogItemsQueueArn}'],
+            Resource: ['${cf:product-service-${self:provider.stage}.catalogItemsQueueArn}'],
           },
         ],
       },

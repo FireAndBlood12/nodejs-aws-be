@@ -6,14 +6,17 @@ export class EmailService {
   private sns: SNS;
   private emailTopicARN: string;
 
-  private constructor() {
-    (this.sns = new SNS({ region: process.env.SNS_REGION })),
-      (this.emailTopicARN = process.env.SNS_ARN);
+  constructor(sns, emailTopicARN) {
+    this.sns = sns;
+    this.emailTopicARN = emailTopicARN;
   }
 
   static getInstance(): EmailService {
     if (!EmailService.instance) {
-      EmailService.instance = new EmailService();
+      EmailService.instance = new EmailService(
+        new SNS({ region: process.env.SNS_REGION }),
+        process.env.SNS_ARN
+      );
     }
     return EmailService.instance;
   }
@@ -33,11 +36,14 @@ export class EmailService {
           }
         })
         .promise();
-      logger.info(
-        `An email ${Subject} ${Message} was sent, total imported products price is ${productsPrice}$`
-      );
+      logger.info('An email was sent!', { Subject, Message, productsPrice });
     } catch (err) {
-      logger.error(`Error occured during sending an email ${Subject} ${Message}`, err);
+      logger.error('Error occured during sending an email', {
+        Subject,
+        Message,
+        productsPrice,
+        err
+      });
       throw err;
     }
   }

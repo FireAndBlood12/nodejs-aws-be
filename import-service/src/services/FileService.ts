@@ -39,17 +39,7 @@ export class FileService {
     s3Stream
       .pipe(csv())
       .on('open', () => console.debug(`Parsing file ${s3ObjectKey}`))
-      .on('data', async (data) => {
-        try {
-          await this.sqs.sendMessage({
-            MessageBody: JSON.stringify(data),
-            QueueUrl: this.sqsURL,
-          });
-          logger.info('The parsed product was successfully sended to queue', { product: data });
-        } catch(error) {
-          logger.error('An error occured during sending product to queue', { product: data, error });
-        }
-      })
+      .on('data', (data) => this.sendProductToQueue(data))
       .on('error', async (error) => {
         console.log('Error:', error);
         await s3
@@ -86,6 +76,23 @@ export class FileService {
   private connectS3() {
     return new S3({ region: this.bucketRegion, signatureVersion: 'v4' });
   }
+
+  private sendProductToQueue(product) {
+    this.sqs.sendMessage(
+      {
+        QueueUrl: this.sqsURL,
+        MessageBody: JSON.stringify(product),
+      },
+      (error, data) => {
+        if (error) {
+          logger.error('An error occured during sending product to queue', { product: data, error });
+          return;
+        }
+
+        logger.info('The parsed product was successfully sended to queue', { product: data });
+      }
+    );
+  }
 }
 
 const defaultFileService = new FileService(
@@ -94,7 +101,7 @@ const defaultFileService = new FileService(
   process.env.UPLOAD_FOLDER,
   process.env.PARSED_FOLDER,
   parseInt(process.env.SIGNED_URL_EXPIRATION),
-  new SQS(),
+  new SQS({ region: process.env.BUCKET_REGION }),
   process.env.CATALOG_ITEMS_QUEUE_URL,
 );
 

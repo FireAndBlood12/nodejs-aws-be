@@ -56,26 +56,26 @@ const serverlessConfiguration: AWS = {
       SNSCatalogBatchProcessSubscriptionLowPrice: {
         Type: 'AWS::SNS::Subscription',
         Properties: {
-          Endpoint: process.env.LOW_PRICE_EMAIL,
+          Endpoint: '${env:LOW_PRICE_EMAIL}',
           Protocol: 'email',
           TopicArn: {
             Ref: 'SNSCatalogBatchProcessTopic',
           },
           FilterPolicy: {
-            productsPrice: [{ numeric: ['<=', 2500] }],
+            productsPrice: [{ numeric: ['<=', 25000] }],
           },
         },
       },
       SNSCatalogBatchProcessSubscriptionHighPrice: {
         Type: 'AWS::SNS::Subscription',
         Properties: {
-          Endpoint: process.env.HIGH_PRICE_EMAIL,
+          Endpoint: '${env:HIGH_PRICE_EMAIL}',
           Protocol: 'email',
           TopicArn: {
             Ref: 'SNSCatalogBatchProcessTopic',
           },
           FilterPolicy: {
-            productsPrice: [{ numeric: ['>', 2500] }],
+            productsPrice: [{ numeric: ['>', 25000] }],
           },
         },
       },
